@@ -31,5 +31,13 @@ jobs:
       uses: abatilo/actions-poetry@v2
       with:
         poetry-version: ${{ matrix.poetry-version }}
-    - name: View poetry --help
-      run: poetry --help
+    - name: Install dependencies
+      run:
+        poetry install
+    - name: Install k6
+      run: |
+        curl https://github.com/grafana/k6/releases/download/v0.44.0/k6-v0.44.0-linux-amd64.tar.gz -L | tar xvz --strip-components 1
+    - name: Run load test
+      run: |
+        poetry run uvicorn fastapi_k6_load_testing.main:app &
+        sleep 5 && ./k6 run scripts/test.js
